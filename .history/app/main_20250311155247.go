@@ -155,7 +155,7 @@ func handleApiVersionsRequest(conn net.Conn, request *KafkaRequest) error {
 	response[6] = 3
 
 	// API Key 1 - API_VERSIONS (18)
-	binary.BigEndian.PutUint16(response[7:9], uint16(ApiVersionsKey))
+	binary.BigEndian.PutUint16(response[7:9], ApiVersionsKey)
 	binary.BigEndian.PutUint16(response[9:11], 3)  // Min version
 	binary.BigEndian.PutUint16(response[11:13], 4) // Max version
 	response[13] = 0                               // _tagged_fields
