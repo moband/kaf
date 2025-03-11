@@ -21,28 +21,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	// First read the message size (4 bytes)
-	messageSizeBytes := make([]byte, 4)
-	_, err = io.ReadFull(conn, messageSizeBytes)
+	// Read request
+	// We need at least the first 12 bytes to extract the correlation ID
+	// 4 bytes message_size + 2 bytes api_key + 2 bytes api_version + 4 bytes correlation_id
+	requestHeader := make([]byte, 12)
+	_, err = io.ReadFull(conn, requestHeader)
 	if err != nil {
-		fmt.Println("Error reading message size: ", err.Error())
+		fmt.Println("Error reading request: ", err.Error())
 		os.Exit(1)
 	}
 
-	messageSize := binary.BigEndian.Uint32(messageSizeBytes)
-
-	// Read the rest of the message
-	restOfMessage := make([]byte, messageSize)
-	_, err = io.ReadFull(conn, restOfMessage)
-	if err != nil {
-		fmt.Println("Error reading message body: ", err.Error())
-		os.Exit(1)
-	}
-
-	// Extract correlation ID (4 bytes after api_key and api_version)
-	// In the request header, after the message_size (which we already read),
-	// we have: 2 bytes api_key + 2 bytes api_version + 4 bytes correlation_id
-	correlationID := binary.BigEndian.Uint32(restOfMessage[4:8])
+	// Extract correlation ID (bytes 8-12)
+	correlationID := binary.BigEndian.Uint32(requestHeader[8:12])
 
 	// Send Kafka response with the extracted correlation ID
 	response := make([]byte, 8)
