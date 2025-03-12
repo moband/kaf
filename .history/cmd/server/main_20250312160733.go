@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	log := logger.New(logger.INFO)
+	log := logger.New(logger.DEBUG)
 	log.Info("Kafka server starting...")
 
 	config := server.Config{
